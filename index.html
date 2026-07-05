@@ -251,6 +251,71 @@
       <div class="ad-slot">広告スペース</div>
     </section>
   </div>
+<style>
+  .guide{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px 22px;margin-top:20px;max-width:760px;margin-left:auto;margin-right:auto}
+  .guide h2{font-size:20px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em}
+  .guide .lead{font-size:14px;color:var(--muted);margin:0 0 22px;line-height:1.8}
+  .guide h3{font-size:15.5px;font-weight:800;margin:22px 0 8px;padding-top:18px;border-top:1px solid var(--line)}
+  .guide p{font-size:14px;color:#2b2d33;line-height:1.9;margin:0 0 10px}
+  .guide ol,.guide ul{font-size:14px;color:#2b2d33;line-height:1.9;margin:0 0 10px;padding-left:1.3em}
+  .guide li{margin-bottom:4px}
+  .guide .faq-q{font-size:14.5px;font-weight:700;color:var(--ink);margin:16px 0 4px}
+  .guide .faq-a{font-size:13.5px;color:#42454d;line-height:1.85;margin:0}
+  .guide b{color:var(--ink)}
+</style>
+
+<section class="guide">
+  <h2>縦型動画のテロップを、読みやすく整える</h2>
+  <p class="lead">テロップ整形メーカーは、CapCut・YouTube Shorts・TikTok・Instagram リール向けの字幕を、日本語の禁則処理つきで自動整形する無料ツールです。自動字幕のテキストを貼り付けるだけで、縦型画面でも読みやすい改行に整え、そのまま重ねられる透過PNGとして書き出せます。インストール不要、ブラウザだけで完結します。</p>
+
+  <h3>テロップの文字数の目安</h3>
+  <p>スマホの縦型画面では、<b>1行あたり13文字前後・最大2行</b>が読みやすさの目安です。横型（通常のYouTube動画）なら1行16〜20文字まで許容されます。人が字幕を読み切るには<b>1テロップあたり1.5〜2秒</b>ほどの表示時間が必要なので、1文が長いときは無理に詰め込まず、テロップを分けたほうが視聴維持率は上がります。本ツールの「1行の最大文字数」を調整すると、この目安に合わせて自動で改行位置が変わります。</p>
+
+  <h3>CapCut・YouTubeの自動字幕から取り込む</h3>
+  <ol>
+    <li>CapCutの「自動キャプション」やYouTubeの自動字幕で文字を生成する</li>
+    <li>生成された字幕テキスト、または書き出した<b>SRTファイルの中身</b>をコピーする</li>
+    <li>本ツールの入力欄に貼り付ける（SRTの時間情報は自動で除去されます）</li>
+    <li>「1行の最大文字数」「行数」「色・スタイル」を選ぶと、右のプレビューに反映されます</li>
+  </ol>
+
+  <h3>透過PNGを動画に重ねる</h3>
+  <p>「全部を画像化」または各テロップの「画像」ボタンから、背景が透明な1080×1920のPNGを書き出せます。スマホは画像を長押しして写真に保存、CapCutなら<b>「オーバーレイ」→「追加」</b>から保存したPNGを選び、表示位置とタイミングを合わせるだけ。背景が透明なので、動画の上にそのまま文字だけが乗ります。フォントや縁取りの見た目を動画ごとに統一したいときに便利です。</p>
+
+  <h3>よくある質問</h3>
+  <div class="faq-q">Q. 無料で使えますか？</div>
+  <p class="faq-a">はい、すべての機能を無料で利用できます。会員登録も不要です。</p>
+  <div class="faq-q">Q. 入力したテキストは保存されますか？</div>
+  <p class="faq-a">いいえ。整形も画像書き出しもすべてブラウザ内で処理され、テキストがサーバーへ送られることはありません。</p>
+  <div class="faq-q">Q. 禁則処理とは何ですか？</div>
+  <p class="faq-a">行の先頭に「、」「。」などの句読点や小さい「っ」が来ないように改行位置を調整する、日本語組版のルールです。これがないと字幕が読みにくくなりますが、本ツールは自動で処理します。</p>
+  <div class="faq-q">Q. スマホだけで使えますか？</div>
+  <p class="faq-a">iPhone・Androidのブラウザで動作します。書き出した画像は長押しで写真アプリに保存できます。</p>
+</section>
+
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"SoftwareApplication",
+      "name":"テロップ整形メーカー",
+      "applicationCategory":"MultimediaApplication",
+      "operatingSystem":"Web",
+      "offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"},
+      "description":"縦型動画の字幕・テロップを禁則処理つきで整形し、透過PNGで書き出せる無料ツール。"
+    },
+    {
+      "@type":"FAQPage",
+      "mainEntity":[
+        {"@type":"Question","name":"無料で使えますか？","acceptedAnswer":{"@type":"Answer","text":"はい、すべての機能を無料で利用できます。会員登録も不要です。"}},
+        {"@type":"Question","name":"入力したテキストは保存されますか？","acceptedAnswer":{"@type":"Answer","text":"いいえ。整形も画像書き出しもすべてブラウザ内で処理され、テキストがサーバーへ送られることはありません。"}},
+        {"@type":"Question","name":"禁則処理とは何ですか？","acceptedAnswer":{"@type":"Answer","text":"行の先頭に句読点や小さい「っ」が来ないように改行位置を調整する日本語組版のルールです。本ツールは自動で処理します。"}}
+      ]
+    }
+  ]
+}
+</script>
 
   <footer>
     <div>© 2026 テロップ整形メーカー</div>
