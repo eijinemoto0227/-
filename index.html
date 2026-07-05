@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>テロップ整形メーカー｜縦型動画の字幕を透過PNGで書き出し</title>
+<meta name="description" content="縦型動画の字幕・テロップを禁則処理つきで自動整形。CapCut・YouTube Shorts・TikTok向けに1080×1920の透過PNGで書き出せる無料ツール。テキスト/SRT対応、インストール不要。">
+<meta name="theme-color" content="#FFD400">
+<meta property="og:title" content="テロップ整形メーカー">
+<meta property="og:description" content="縦型動画の字幕を禁則処理つきで整形して透過PNGで書き出せる無料ツール。">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23FFD400'/%3E%3Ctext x='16' y='23' font-size='20' font-weight='900' text-anchor='middle' font-family='sans-serif'%3E%E5%AD%97%3C/text%3E%3C/svg%3E">
+
+<!-- ▼▼ Google AdSense（審査通過後、ca-pub-XXXXXXXXXXXXXXXX を自分のIDに置き換え） ▼▼
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+▲▲ ここまで ▲▲ -->
+
+<style>
+  :root{
+    --bg:#EDEEF1; --surface:#fff; --ink:#17181C; --muted:#6A6E78;
+    --faint:#9AA0AA; --line:#E2E4E9; --accent:#FFD400; --stage:#0E0F13; --warn:#E5484D;
+    --gothic:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",Meiryo,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--ink); font-family:var(--gothic);
+    -webkit-font-smoothing:antialiased; padding:20px 16px 40px;
+  }
+  .wrap{max-width:1080px;margin:0 auto}
+  header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .mark{width:40px;height:40px;border-radius:11px;background:var(--accent);color:#000;
+    display:grid;place-items:center;font-weight:900;font-size:20px;box-shadow:0 3px 0 rgba(0,0,0,.12)}
+  h1{font-size:19px;font-weight:800;margin:0;letter-spacing:-.01em}
+  .sub{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
+  .stat-pill{background:var(--surface);border:1px solid var(--line);border-radius:999px;
+    padding:8px 14px;font-size:13px;color:var(--muted)}
+  .stat-pill b{color:var(--ink)}
+
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:16px}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+  .right{display:flex;flex-direction:column;gap:16px}
+  .phead{display:flex;justify-content:space-between;align-items:center;margin:6px 0 10px}
+  .eyebrow{font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--faint)}
+  .srt-tag{font-size:11px;font-weight:700;color:#5A4A00;background:var(--accent);padding:3px 8px;border-radius:6px;display:none}
+  .srt-tag.show{display:inline-block}
+
+  textarea{width:100%;min-height:150px;resize:vertical;border:1px solid var(--line);border-radius:12px;
+    padding:12px 13px;font-size:14.5px;line-height:1.7;font-family:var(--gothic);color:var(--ink);
+    background:#FCFCFD;outline:none}
+  textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,212,0,.22)}
+  .row-btns{display:flex;gap:8px;margin:10px 0 4px}
+  .ghost{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 0;
+    font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;font-family:var(--gothic)}
+  .ghost:hover{background:#F6F7F9;color:var(--ink)}
+
+  .ctrl{padding:12px 0;border-top:1px solid var(--line)}
+  .ctrl-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px;font-size:13.5px;font-weight:700}
+  .num{font-size:17px}
+  .hint{display:block;margin-top:7px;font-size:11.5px;color:var(--faint)}
+  input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:999px;background:#E4E6EB;outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+    background:var(--ink);cursor:pointer;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+  input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--ink);cursor:pointer;border:3px solid #fff}
+
+  .seg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;background:#F1F2F5;padding:4px;border-radius:11px}
+  .seg button{border:none;background:transparent;border-radius:8px;padding:8px 0;font-size:13px;
+    font-weight:700;color:var(--muted);cursor:pointer;font-family:var(--gothic)}
+  .seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.10)}
+
+  .toggle{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;
+    border:1px solid var(--line);background:#fff;border-radius:12px;padding:11px 13px;margin-top:10px;
+    cursor:pointer;text-align:left;font-family:var(--gothic)}
+  .toggle.on{border-color:#E6C700;background:#FFFCEC}
+  .toggle .t-label{font-size:13.5px;font-weight:700;color:var(--ink)}
+  .toggle .t-note{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .switch{width:42px;height:25px;border-radius:999px;background:#D4D7DE;flex-shrink:0;position:relative;transition:background .18s}
+  .toggle.on .switch{background:var(--accent)}
+  .knob{width:19px;height:19px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;
+    transition:left .18s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .toggle.on .knob{left:20px}
+
+  .color-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .chip{display:flex;align-items:center;justify-content:center;gap:5px;border:1px solid var(--line);
+    background:#fff;border-radius:9px;padding:8px 0;font-size:12.5px;font-weight:700;color:var(--muted);
+    cursor:pointer;font-family:var(--gothic)}
+  .chip.on{border-color:var(--ink);color:var(--ink);box-shadow:0 0 0 2px rgba(23,24,28,.12)}
+  .swatch{width:14px;height:14px;border-radius:50%;border:1.5px solid rgba(0,0,0,.35);display:inline-block}
+
+  .style-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+  .style-grid button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 0;
+    font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;font-family:var(--gothic)}
+  .style-grid button.on{border-color:var(--ink);color:var(--ink);background:#FFFCEC;box-shadow:0 0 0 2px rgba(255,212,0,.35)}
+
+  .stage-wrap{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;place-items:center}
+  .stage{width:240px;aspect-ratio:9/16;background:var(--stage);border-radius:20px;position:relative;
+    overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+  .stage .glow{position:absolute;inset:0;background:radial-gradient(120% 60% at 50% 0%, #23262F 0%, #0E0F13 60%)}
+  .frame-label{position:absolute;top:12px;left:0;right:0;text-align:center;font-size:10px;
+    letter-spacing:.16em;color:rgba(255,255,255,.35);font-weight:700}
+  .telop-box{position:relative;z-index:2;padding:0 14px 54px;text-align:center}
+  .band-inner{display:inline-block;background:rgba(0,0,0,.6);padding:6px 13px;border-radius:9px}
+  .telop-line{font-weight:900;font-size:21px;line-height:1.34;letter-spacing:.01em}
+  .pager{position:absolute;bottom:12px;left:0;right:0;z-index:3;display:flex;justify-content:center;align-items:center;gap:12px}
+  .pager button{width:30px;height:30px;border-radius:50%;border:none;background:rgba(255,255,255,.14);
+    color:#fff;font-size:17px;cursor:pointer;line-height:1}
+  .pager button:not(:disabled):hover{background:rgba(255,255,255,.28)}
+  .pager button:disabled{opacity:.3;cursor:default}
+  .pg-count{font-size:12px;color:rgba(255,255,255,.75);font-variant-numeric:tabular-nums;min-width:54px;text-align:center}
+
+  .result-head{display:flex;justify-content:space-between;align-items:center;padding:0 2px}
+  .result-head .btns{display:flex;gap:8px}
+  .copy-all{border:none;background:var(--ink);color:#fff;border-radius:10px;padding:9px 16px;
+    font-size:13px;font-weight:700;cursor:pointer;font-family:var(--gothic)}
+  .copy-all:hover{opacity:.88}
+  .img-all{border:1px solid var(--ink);background:#fff;color:var(--ink);border-radius:10px;padding:9px 15px;
+    font-size:13px;font-weight:700;cursor:pointer;font-family:var(--gothic)}
+  .img-all:hover{background:var(--ink);color:#fff}
+
+  .card-list{display:flex;flex-direction:column;gap:8px}
+  .empty{padding:26px 14px;text-align:center;color:var(--faint);font-size:13px;border:1px dashed var(--line);border-radius:12px}
+  .card{position:relative;display:flex;align-items:stretch;gap:11px;background:var(--surface);
+    border:1px solid var(--line);border-radius:12px;padding:11px 12px;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+  .card.on{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,212,0,.22)}
+  .card-idx{width:22px;font-size:12px;font-weight:800;color:var(--faint);font-variant-numeric:tabular-nums;padding-top:2px}
+  .card-body{flex:1;min-width:0}
+  .card-line{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:15px;font-weight:600;line-height:1.7}
+  .count{font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;flex-shrink:0;color:var(--faint)}
+  .count.over{color:var(--warn)}
+  .card-btns{display:flex;flex-direction:column;gap:5px;align-self:center;flex-shrink:0}
+  .mini{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 11px;font-size:12px;
+    font-weight:700;color:var(--muted);cursor:pointer;font-family:var(--gothic)}
+  .mini:hover{background:var(--accent);border-color:var(--accent);color:#000}
+  .over-flag{position:absolute;top:-1px;right:-1px;width:9px;height:9px;border-radius:0 12px 0 12px;background:var(--warn)}
+
+  .ad-slot{background:var(--surface);border:1px dashed var(--line);border-radius:14px;min-height:90px;
+    display:grid;place-items:center;color:var(--faint);font-size:12px;margin-top:16px}
+
+  footer{max-width:1080px;margin:26px auto 0;text-align:center;font-size:12px;color:var(--faint)}
+  footer a{color:var(--muted);text-decoration:none;margin:0 8px}
+  footer a:hover{text-decoration:underline}
+
+  .modal-wrap{position:fixed;inset:0;z-index:100;background:rgba(12,13,16,.72);display:flex;
+    align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)}
+  .modal{background:var(--bg);width:100%;max-width:640px;max-height:88vh;border-radius:20px 20px 0 0;
+    padding:18px;overflow-y:auto}
+  .modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .modal-title{font-size:16px;font-weight:800}
+  .modal-hint{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5}
+  .modal-close{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 14px;
+    font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;font-family:var(--gothic);flex-shrink:0}
+  .modal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px}
+  .shot{display:flex;flex-direction:column;gap:7px}
+  .shot img{width:100%;aspect-ratio:9/16;object-fit:cover;border-radius:12px;border:1px solid var(--line);
+    background:repeating-conic-gradient(#e7e8ec 0% 25%, #f4f5f7 0% 50%) 50%/18px 18px}
+  .shot a{text-align:center;text-decoration:none;background:var(--ink);color:#fff;border-radius:9px;padding:8px 0;font-size:12.5px;font-weight:700}
+
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(8px);opacity:0;
+    background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;
+    pointer-events:none;transition:opacity .2s,transform .2s;z-index:150;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  *:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  @media (max-width:760px){ .grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <span class="mark">字</span>
+      <div>
+        <h1>テロップ整形メーカー</h1>
+        <p class="sub">縦型動画の字幕を、禁則処理つきで一発整形</p>
+      </div>
+    </div>
+    <div class="stat-pill"><b id="stat-cards">0</b> 枚 ・ <b id="stat-sec">0.0</b> 秒</div>
+  </header>
+
+  <div class="grid">
+    <!-- 左：入力＆設定 -->
+    <section class="panel">
+      <div class="phead">
+        <span class="eyebrow">01 — 貼り付け</span>
+        <span class="srt-tag" id="srt-tag">SRT検出：時間情報を除去済み</span>
+      </div>
+      <textarea id="input" spellcheck="false" placeholder="ここに台本や自動字幕を貼り付け（テキスト / SRT どちらもOK）"></textarea>
+      <div class="row-btns">
+        <button class="ghost" id="btn-clear">クリア</button>
+        <button class="ghost" id="btn-sample">サンプル</button>
+      </div>
+
+      <div class="phead"><span class="eyebrow">02 — 整形ルール</span></div>
+
+      <div class="ctrl">
+        <div class="ctrl-top"><span>1行の最大文字数</span><b class="num" id="mc-val">13</b></div>
+        <input type="range" id="maxchars" min="8" max="18" value="13">
+        <span class="hint">縦型は13前後、横型は16〜18が読みやすい目安</span>
+      </div>
+
+      <div class="ctrl">
+        <div class="ctrl-top"><span>1テロップの行数</span></div>
+        <div class="seg" id="maxlines">
+          <button data-v="1">1行</button>
+          <button data-v="2" class="on">2行</button>
+          <button data-v="3">3行</button>
+        </div>
+      </div>
+
+      <button class="toggle on" id="tg-punct">
+        <div><div class="t-label">句点で区切る</div><div class="t-note">。！？ ごとにテロップを分ける</div></div>
+        <div class="switch"><div class="knob"></div></div>
+      </button>
+      <button class="toggle" id="tg-comma">
+        <div><div class="t-label">読点でも区切る</div><div class="t-note">長い文を 、 でさらに細かく分割</div></div>
+        <div class="switch"><div class="knob"></div></div>
+      </button>
+
+      <div class="ctrl">
+        <div class="ctrl-top"><span>テロップの色</span></div>
+        <div class="color-row" id="colors"></div>
+      </div>
+
+      <div class="ctrl">
+        <div class="ctrl-top"><span>テロップのスタイル</span></div>
+        <div class="style-grid" id="styles"></div>
+      </div>
+    </section>
+
+    <!-- 右：プレビュー＆結果 -->
+    <section class="right">
+      <div class="stage-wrap">
+        <div class="stage">
+          <div class="glow"></div>
+          <div class="frame-label">9:16 プレビュー</div>
+          <div class="telop-box"><div id="telop"></div></div>
+          <div class="pager" id="pager"></div>
+        </div>
+      </div>
+
+      <div class="result-head">
+        <span class="eyebrow">03 — 書き出し</span>
+        <div class="btns">
+          <button class="img-all" id="btn-img-all">全部を画像化</button>
+          <button class="copy-all" id="btn-copy-all">全部コピー</button>
+        </div>
+      </div>
+      <div class="card-list" id="cards"></div>
+
+      <!-- ▼ 広告枠（AdSense審査通過後、ここに広告ユニットのコードを貼る） ▼ -->
+      <div class="ad-slot">広告スペース</div>
+    </section>
+  </div>
+
+  <footer>
+    <div>© 2026 テロップ整形メーカー</div>
+    <div style="margin-top:6px">
+      <a href="/privacy.html">プライバシーポリシー</a>
+    </div>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- ロジック ---------- */
+const GOTHIC = '"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",Meiryo,sans-serif';
+const HEAD_BAN = new Set("、。，．・：；？！）］｝」』】〕〉》〙〗〟”’ヽヾゝゞ々ーぁぃぅぇぉっゃゅょゎァィゥェォッャュョヮ%".split(""));
+const COLORS = [
+  {key:"yellow",label:"黄",text:"#FFD400"},
+  {key:"white", label:"白",text:"#FFFFFF"},
+  {key:"pink",  label:"桃",text:"#FF5FA2"},
+  {key:"cyan",  label:"水",text:"#28E0D0"},
+];
+const STYLES = [
+  {key:"outline",label:"縁取り"},
+  {key:"double", label:"二重"},
+  {key:"shadow", label:"影"},
+  {key:"glow",   label:"ネオン"},
+  {key:"band",   label:"黒帯"},
+];
+const SAMPLE = "今日は誰でも3分でできる神ワザを紹介します。まず最初にやることはこれ。実はほとんどの人がここで間違えてるんですよね。でも大丈夫、順番通りにやれば絶対にできます。";
+
+const cp = s => [...s].length;
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function stripSRT(text){
+  const looksSRT = /\d{2}:\d{2}:\d{2}[.,]\d{3}\s*-->/.test(text);
+  if(!looksSRT) return {text, wasSRT:false};
+  const cleaned = text.split(/\r?\n/)
+    .filter(l => !/^\d+$/.test(l.trim()))
+    .filter(l => !/\d{2}:\d{2}:\d{2}[.,]\d{3}\s*-->/.test(l))
+    .join("\n");
+  return {text:cleaned, wasSRT:true};
+}
+function splitSentences(text, splitPunct, splitComma){
+  const units = [];
+  text.split(/\n+/).forEach(para=>{
+    let chunks = splitPunct ? para.split(/(?<=[。！？!?])/) : [para];
+    chunks.forEach(c0=>{
+      const c = c0.trim(); if(!c) return;
+      if(splitComma){ c.split(/(?<=[、,])/).forEach(c2=>{const t=c2.trim(); if(t) units.push(t);}); }
+      else units.push(c);
+    });
+  });
+  return units.filter(Boolean);
+}
+function wrapLine(text, max){
+  const chars=[...text], lines=[]; let cur="";
+  for(let i=0;i<chars.length;i++){
+    cur+=chars[i];
+    if(cp(cur)>=max){
+      while(i+1<chars.length && HEAD_BAN.has(chars[i+1])){ cur+=chars[i+1]; i++; }
+      if(i<chars.length-1){ lines.push(cur); cur=""; }
+    }
+  }
+  if(cur) lines.push(cur);
+  return lines;
+}
+function buildCards(source, o){
+  const sentences = splitSentences(source, o.splitPunct, o.splitComma);
+  const cards=[];
+  sentences.forEach(s=>{
+    const wrapped = wrapLine(s, o.maxChars);
+    for(let i=0;i<wrapped.length;i+=o.maxLines) cards.push(wrapped.slice(i, i+o.maxLines));
+  });
+  return cards;
+}
+const readSec = lines => Math.max(0.6, lines.reduce((a,l)=>a+cp(l),0)/7);
+const outline = (c,w)=>[`${w}px ${w}px 0 ${c}`,`-${w}px ${w}px 0 ${c}`,`${w}px -${w}px 0 ${c}`,`-${w}px -${w}px 0 ${c}`,`0 ${w}px 0 ${c}`,`0 -${w}px 0 ${c}`,`${w}px 0 0 ${c}`,`-${w}px 0 0 ${c}`].join(", ");
+function previewShadow(styleKey, color){
+  switch(styleKey){
+    case "double": return `${outline("#fff",1.5)}, ${outline("#000",3.5)}`;
+    case "shadow": return "0 3px 7px rgba(0,0,0,.6)";
+    case "glow":   return `0 0 8px ${color}, 0 0 18px ${color}, 0 1px 2px rgba(0,0,0,.5)`;
+    case "band":   return "none";
+    default:       return `${outline("#000",3)}, 0 4px 10px rgba(0,0,0,.5)`;
+  }
+}
+
+/* ---------- canvas 書き出し ---------- */
+function roundRectPath(ctx,x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+}
+function drawTelopLine(ctx,text,x,y,fs,color,styleKey){
+  ctx.save(); ctx.lineJoin="round"; ctx.miterLimit=2;
+  if(styleKey==="double"){
+    ctx.lineWidth=fs*0.24; ctx.strokeStyle="#000"; ctx.strokeText(text,x,y);
+    ctx.lineWidth=fs*0.12; ctx.strokeStyle="#fff"; ctx.strokeText(text,x,y);
+    ctx.fillStyle=color; ctx.fillText(text,x,y);
+  }else if(styleKey==="shadow"){
+    ctx.shadowColor="rgba(0,0,0,.55)"; ctx.shadowBlur=fs*0.14; ctx.shadowOffsetY=fs*0.06;
+    ctx.fillStyle=color; ctx.fillText(text,x,y);
+  }else if(styleKey==="glow"){
+    ctx.shadowColor=color; ctx.shadowBlur=fs*0.5; ctx.fillStyle=color;
+    ctx.fillText(text,x,y); ctx.fillText(text,x,y);
+    ctx.shadowBlur=0; ctx.fillText(text,x,y);
+  }else if(styleKey==="band"){
+    ctx.fillStyle=color; ctx.fillText(text,x,y);
+  }else{
+    ctx.lineWidth=fs*0.16; ctx.strokeStyle="#000"; ctx.strokeText(text,x,y);
+    ctx.fillStyle=color; ctx.fillText(text,x,y);
+  }
+  ctx.restore();
+}
+function renderCardToDataURL(lines, {textColor, styleKey, maxChars}){
+  const W=1080,H=1920;
+  const canvas=document.createElement("canvas"); canvas.width=W; canvas.height=H;
+  const ctx=canvas.getContext("2d");
+  const margin=72, usable=W-margin*2;
+  const longest=Math.max(1,...lines.map(cp));
+  let fs=Math.floor(Math.min(usable/maxChars, usable/longest));
+  fs=Math.max(46,Math.min(100,fs));
+  const lh=fs*1.36;
+  ctx.font=`900 ${fs}px ${GOTHIC}`; ctx.textAlign="center"; ctx.textBaseline="middle";
+  const blockH=lh*lines.length, cy=H*0.8, startY=cy-blockH/2+lh/2;
+  if(styleKey==="band"){
+    let widest=0; lines.forEach(l=>widest=Math.max(widest,ctx.measureText(l).width));
+    const padX=44,padY=24, bw=Math.min(W-24,widest+padX*2), bh=blockH+padY*2;
+    ctx.fillStyle="rgba(0,0,0,0.62)"; roundRectPath(ctx,(W-bw)/2,cy-bh/2,bw,bh,20); ctx.fill();
+  }
+  lines.forEach((l,i)=>drawTelopLine(ctx,l,W/2,startY+i*lh,fs,textColor,styleKey));
+  return canvas.toDataURL("image/png");
+}
+
+/* ---------- 状態＆描画 ---------- */
+const state={raw:SAMPLE,maxChars:13,maxLines:2,splitPunct:true,splitComma:false,textColor:"#FFD400",styleKey:"outline",active:0};
+let CARDS=[];
+const $=id=>document.getElementById(id);
+
+let toastTimer=null;
+function toast(msg){
+  const t=$("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),1600);
+}
+async function copyText(str,msg){
+  try{ await navigator.clipboard.writeText(str); toast(msg); }
+  catch{ toast("コピーできませんでした（長押しで選択してね）"); }
+}
+function opts(){ return {textColor:state.textColor, styleKey:state.styleKey, maxChars:state.maxChars}; }
+
+function openModal(indexes){
+  const imgs=indexes.map(i=>({idx:i,url:renderCardToDataURL(CARDS[i],opts())}));
+  const wrap=document.createElement("div"); wrap.className="modal-wrap";
+  wrap.innerHTML=`<div class="modal">
+    <div class="modal-head">
+      <div><div class="modal-title">画像を保存</div>
+        <div class="modal-hint">スマホは画像を長押し →「写真に追加」／ PCは保存ボタン</div></div>
+      <button class="modal-close">閉じる</button>
+    </div>
+    <div class="modal-grid">${imgs.map(im=>`<div class="shot">
+      <img src="${im.url}" alt="テロップ${im.idx+1}">
+      <a href="${im.url}" download="telop_${String(im.idx+1).padStart(2,"0")}.png">${im.idx+1}を保存</a>
+    </div>`).join("")}</div>
+  </div>`;
+  const close=()=>wrap.remove();
+  wrap.addEventListener("click",e=>{ if(e.target===wrap) close(); });
+  wrap.querySelector(".modal-close").addEventListener("click",close);
+  document.body.appendChild(wrap);
+}
+
+function render(){
+  const {text:cleaned, wasSRT}=stripSRT(state.raw);
+  $("srt-tag").classList.toggle("show", wasSRT);
+  CARDS=buildCards(cleaned, state);
+  if(state.active>CARDS.length-1) state.active=Math.max(0,CARDS.length-1);
+
+  const totalSec=CARDS.reduce((a,c)=>a+readSec(c),0);
+  $("stat-cards").textContent=CARDS.length;
+  $("stat-sec").textContent=totalSec.toFixed(1);
+
+  // プレビュー
+  const active=CARDS[state.active]||[];
+  const telop=$("telop");
+  telop.className=state.styleKey==="band"?"band-inner":"";
+  telop.innerHTML=active.map(l=>`<div class="telop-line" style="color:${state.textColor};text-shadow:${previewShadow(state.styleKey,state.textColor)}">${esc(l)}</div>`).join("");
+
+  // ページャ
+  const pager=$("pager");
+  if(CARDS.length){
+    pager.innerHTML=`<button id="pg-prev" ${state.active===0?"disabled":""}>‹</button>
+      <span class="pg-count">${state.active+1} / ${CARDS.length}</span>
+      <button id="pg-next" ${state.active>=CARDS.length-1?"disabled":""}>›</button>`;
+    $("pg-prev").onclick=()=>{ state.active=Math.max(0,state.active-1); render(); };
+    $("pg-next").onclick=()=>{ state.active=Math.min(CARDS.length-1,state.active+1); render(); };
+  }else pager.innerHTML="";
+
+  // カード一覧
+  const cardsEl=$("cards");
+  if(!CARDS.length){ cardsEl.innerHTML=`<div class="empty">テキストを貼るとここにテロップが並びます。</div>`; return; }
+  cardsEl.innerHTML=CARDS.map((c,idx)=>{
+    const over=c.some(l=>cp(l)>state.maxChars);
+    return `<div class="card ${idx===state.active?'on':''}" data-idx="${idx}">
+      <div class="card-idx">${idx+1}</div>
+      <div class="card-body">${c.map(l=>`<div class="card-line"><span>${esc(l)}</span><span class="count ${cp(l)>state.maxChars?'over':''}">${cp(l)}</span></div>`).join("")}</div>
+      <div class="card-btns">
+        <button class="mini" data-act="img" data-idx="${idx}">画像</button>
+        <button class="mini" data-act="copy" data-idx="${idx}">コピー</button>
+      </div>
+      ${over?'<div class="over-flag"></div>':''}
+    </div>`;
+  }).join("");
+}
+
+/* ---------- 初期化＆イベント ---------- */
+function buildColorChips(){
+  $("colors").innerHTML=COLORS.map(c=>`<button class="chip ${state.textColor===c.text?'on':''}" data-color="${c.text}">
+    <span class="swatch" style="background:${c.text}"></span>${c.label}</button>`).join("");
+}
+function buildStyleBtns(){
+  $("styles").innerHTML=STYLES.map(s=>`<button class="${state.styleKey===s.key?'on':''}" data-style="${s.key}">${s.label}</button>`).join("");
+}
+
+function init(){
+  $("input").value=state.raw;
+  buildColorChips(); buildStyleBtns();
+
+  $("input").addEventListener("input",e=>{ state.raw=e.target.value; state.active=0; render(); });
+  $("btn-clear").onclick=()=>{ state.raw=""; $("input").value=""; state.active=0; render(); };
+  $("btn-sample").onclick=()=>{ state.raw=SAMPLE; $("input").value=SAMPLE; state.active=0; render(); };
+
+  $("maxchars").addEventListener("input",e=>{ state.maxChars=+e.target.value; $("mc-val").textContent=e.target.value; render(); });
+
+  $("maxlines").addEventListener("click",e=>{
+    const b=e.target.closest("button[data-v]"); if(!b) return;
+    state.maxLines=+b.dataset.v;
+    [...$("maxlines").children].forEach(x=>x.classList.toggle("on",x===b));
+    render();
+  });
+
+  $("tg-punct").onclick=()=>{ state.splitPunct=!state.splitPunct; $("tg-punct").classList.toggle("on",state.splitPunct); render(); };
+  $("tg-comma").onclick=()=>{ state.splitComma=!state.splitComma; $("tg-comma").classList.toggle("on",state.splitComma); render(); };
+
+  $("colors").addEventListener("click",e=>{
+    const b=e.target.closest("button[data-color]"); if(!b) return;
+    state.textColor=b.dataset.color; buildColorChips(); render();
+  });
+  $("styles").addEventListener("click",e=>{
+    const b=e.target.closest("button[data-style]"); if(!b) return;
+    state.styleKey=b.dataset.style; buildStyleBtns(); render();
+  });
+
+  $("cards").addEventListener("click",e=>{
+    const act=e.target.closest("button[data-act]");
+    if(act){
+      const idx=+act.dataset.idx;
+      if(act.dataset.act==="img") openModal([idx]);
+      else copyText(CARDS[idx].join("\n"), `${idx+1}枚目をコピー`);
+      return;
+    }
+    const card=e.target.closest(".card[data-idx]");
+    if(card){ state.active=+card.dataset.idx; render(); }
+  });
+
+  $("btn-copy-all").onclick=()=>{ if(CARDS.length) copyText(CARDS.map(c=>c.join("\n")).join("\n\n"), `${CARDS.length}枚コピーしました`); };
+  $("btn-img-all").onclick=()=>{ if(CARDS.length) openModal(CARDS.map((_,i)=>i)); };
+
+  render();
+}
+init();
+</script>
+</body>
+</html>
